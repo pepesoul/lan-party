@@ -16,14 +16,20 @@ func main() {
 
 	fmt.Println("Server started")
 
-	conn, err := listener.Accept() //accepting one connection
-	if err != nil {
-		log.Fatal(err)
+	for {
+		conn, err := listener.Accept() //accepting one connection
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println("Client connected")
+
+		go handleClient(conn)
 	}
 
-	defer conn.Close()
+}
 
-	fmt.Println("Client connected")
+func handleClient(conn net.Conn) {
+	defer conn.Close()
 
 	//creating a buffer
 	buffer := make([]byte, 1024)
