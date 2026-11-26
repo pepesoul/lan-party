@@ -16,7 +16,7 @@ func main() {
 
 	fmt.Println("Connected to server")
 	//creating a message feature + error handling
-	message := []byte("Hello, server!")
+	message := []byte("Hello, server to!")
 	_, err = conn.Write(message)
 	if err != nil {
 		log.Println(err)

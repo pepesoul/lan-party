@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"net"
 )
@@ -17,7 +18,7 @@ func main() {
 	fmt.Println("Server started")
 
 	for {
-		conn, err := listener.Accept() //accepting one connection
+		conn, err := listener.Accept() //accepting connection
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -34,20 +35,31 @@ func handleClient(conn net.Conn) {
 	//creating a buffer
 	buffer := make([]byte, 1024)
 
-	n, err := conn.Read(buffer) // n - count of byte which it was possible to read
-	if err != nil {
-		log.Println(err) //error output, but only the error message is displayed
-		return
+	for {
+
+		n, err := conn.Read(buffer) // n - count of byte which it was possible to read
+
+		if n > 0 {
+			message := string(buffer[:n]) // takes only a received bytes using - [:n] and converts them into a string
+			fmt.Println("Received: ", message)
+
+			//sending a message to a client
+
+			_, writeErr := conn.Write([]byte(message)) //converts a string into bytes
+			if writeErr != nil {
+				log.Println(err)
+				return
+			}
+		}
+
+		if err != nil {
+			if err == io.EOF {
+				log.Println("Client disconnected")
+			} else {
+				log.Println("Read error", err)
+			}
+			return
+		}
+
 	}
-
-	message := string(buffer[:n]) // takes only a received bytes using - [:n] and converts them into a string
-	fmt.Println("Received: ", message)
-
-	//sending a message to a client
-	_, err = conn.Write([]byte(message)) //converts a string into bytes
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
 }
